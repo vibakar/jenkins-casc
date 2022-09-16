@@ -45,8 +45,16 @@ Placed possible configuration as a code in this directory which has been tested
 Placed configuration file in this directory to use in personal machine
 
 #### Docker build and push
+`
 docker build -t vibakar/jenkins-casc:latest
 docker push vibakar/jenkins-casc:latest
+`
+
+#### Docker image with configuration as a code plugin and other necessary plugin
+`
+docker pull vibakar/jenkins-casc:latest
+docker run -d -v <path-to-folder>:/var/jenkins_home -v <path-to-jenkins.yaml>:/var/jenkins.yaml -e CASC_JENKINS_CONFIG='/var/jenkins.yaml' vibakar/jenkins-casc:latest
+`
 
 ### Useful Notes
 #### How to list the plugins installed on the jenkins
