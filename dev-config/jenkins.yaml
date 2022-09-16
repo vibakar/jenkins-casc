@@ -1,0 +1,64 @@
+jenkins:
+  systemMessage: "Dev Jenkins"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+        - id: "admin"
+          description: "Creating admin user. Here id is the username, name is the display name"
+          name: "Admin"
+          password: "admin"
+
+security:
+  globalJobDslSecurityConfiguration:
+    useScriptSecurity: false
+
+unclassified:
+  location:
+    url: http://localhost
+    adminAddress: admin@abc.com
+  
+  globalLibraries:
+    libraries:
+      - name: "jenkins-libraries@master"
+        implicit: true
+        defaultVersion: "master"
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: "https://github.com/vibakar/jenkins-libraries.git"
+
+jobs:
+  - script: >
+      freeStyleJob('Seed Job') {
+          description('Synchronizes Jenkins jobs with ones in my-repo/jobs folder.')
+          displayName('Seed Job')
+          scm {
+              git {
+                  remote {
+                      name('Jenkins jobs')
+                      url('https://github.com/vibakar/jenkins-pipelines.git')
+                  }
+                  branch('master')
+              }
+          }
+          triggers {
+              pollSCM {
+                  scmpoll_spec('* * * * *')
+              }
+          }
+          steps {
+              dsl {
+                  external "jobs/**/*.groovy"
+                  removeAction("IGNORE")
+                  removeViewAction("IGNORE")
+              }
+          }
+      }

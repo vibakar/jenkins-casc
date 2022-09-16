@@ -1,0 +1,14 @@
+version: '3.3'
+
+services:
+  jenkins: 
+    build: 
+      context: .
+    ports: 
+      - 80:8080
+      - 50000:50000
+    volumes:
+      - /Users/vibakar/workspace/jenkins-dev:/var/jenkins_home
+      - ./dev-config/jenkins.yaml:/var/jenkins.yaml
+    environment:
+      - CASC_JENKINS_CONFIG=/var/jenkins.yaml

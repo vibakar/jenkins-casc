@@ -1,0 +1,115 @@
+jenkins:
+  systemMessage: "Dev Jenkins"
+
+  globalNodeProperties:
+  - envVars:
+      env:
+      - key: VARIABLE1
+        value: foo
+      - key: VARIABLE1
+        value: foo
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+        - id: "admin"
+          description: "id is the username, name is the display name"
+          name: "Admin"
+          password: "admin"
+
+  nodes:
+    - permanent:
+        labelString: "agent1"
+        mode: NORMAL
+        name: "agent1"
+        numExecutors: 4
+        remoteFS: "/home/ec2-user"
+        launcher:
+          ssh:
+            host: "192.168.1.1"
+            port: 22
+            credentialsId: privatekey-example
+            launchTimeoutSeconds: 60
+            maxNumRetries: 3
+            retryWaitTime: 30
+            sshHostKeyVerificationStrategy:
+              manuallyTrustedKeyVerificationStrategy:
+                requireInitialManualTrust: false
+
+security:
+  globalJobDslSecurityConfiguration:
+    useScriptSecurity: false
+
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - usernamePassword: 
+          id: "usernamePassword-example"
+          description: "testing username password credential"
+          username: "username"
+          password: "password"
+          scope: GLOBAL
+      - basicSSHUserPrivateKey:
+          id: "privatekey-example"
+          description: "Testing privatekey credential"
+          privateKeySource:
+            directEntry:
+              privateKey: "{AQAAABAAAAAQ2jqQmj/XuJ4nnKof+td3QLnAP6HCaRVfJveMu5VDoKU=}"
+          scope: GLOBAL
+          username: "ec2-user"
+      - string:
+          id: "secrettext-example"
+          description: "Testing secret text credential"
+          scope: GLOBAL
+          secret: "secrettext"
+
+unclassified:
+  location:
+    url: http://localhost
+    adminAddress: admin@abc.com
+  
+  globalLibraries:
+    libraries:
+      - name: "jenkins-libraries@master"
+        implicit: true
+        defaultVersion: "master"
+        retriever:
+          modernSCM:
+            scm:
+              git:
+                remote: "https://github.com/vibakar/jenkins-libraries.git"
+
+jobs:
+  - script: >
+      freeStyleJob('Seed Job') {
+          description('Synchronizes Jenkins jobs with ones in my-repo/jobs folder.')
+          displayName('Seed Job')
+          scm {
+              git {
+                  remote {
+                      name('Jenkins jobs')
+                      url('https://github.com/vibakar/jenkins-pipelines.git')
+                  }
+                  branch('master')
+              }
+          }
+          triggers {
+              pollSCM {
+                  scmpoll_spec('* * * * *')
+              }
+          }
+          steps {
+              dsl {
+                  external "jobs/**/*.groovy"
+                  removeAction("IGNORE")
+                  removeViewAction("IGNORE")
+              }
+          }
+      }
