@@ -53,7 +53,7 @@ docker push vibakar/jenkins-casc:latest
 #### Docker image with configuration as a code plugin and other necessary plugin
 `
 docker pull vibakar/jenkins-casc:latest
-docker run -d -v <path-to-folder>:/var/jenkins_home -v <path-to-jenkins.yaml>:/var/jenkins.yaml -e CASC_JENKINS_CONFIG='/var/jenkins.yaml' vibakar/jenkins-casc:latest
+docker run -d -p 80:8080 -p 50000:50000 -v <path-to-folder>:/var/jenkins_home -v <path-to-jenkins.yaml>:/var/jenkins.yaml -e CASC_JENKINS_CONFIG='/var/jenkins.yaml' vibakar/jenkins-casc:latest
 `
 
 ### Useful Notes
